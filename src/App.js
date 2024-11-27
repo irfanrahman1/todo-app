@@ -10,7 +10,7 @@ const App = () => {
   const [filter, setFilter] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Fetch Todos from Firestore
+  // Fetch Todos from Firestore and Local Storage
   useEffect(() => {
     const fetchTodos = async () => {
       const todosCollection = collection(db, "todos");
@@ -19,11 +19,23 @@ const App = () => {
         id: doc.id,
         ...doc.data(),
       }));
-      setTodos(todosList);
+
+      // Check local storage for todos
+      const savedTodos = JSON.parse(localStorage.getItem("todos"));
+      if (savedTodos) {
+        setTodos(savedTodos); // Load from local storage
+      } else {
+        setTodos(todosList); // Load from Firestore if local storage is empty
+      }
     };
 
     fetchTodos();
   }, []);
+
+  // Save Todos to Local Storage
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
 
   // Add a new Todo to Firestore
   const addTodo = async (todo) => {
@@ -114,4 +126,3 @@ const App = () => {
 };
 
 export default App;
-
